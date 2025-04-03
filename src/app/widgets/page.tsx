@@ -1,44 +1,50 @@
-"use client";
+import { StarIcon } from "@heroicons/react/20/solid";
+import Link from "next/link";
+import { formatNumber } from "@/utils/format";
+import widgetsData from "@/data/widgets.json";
 
-import { useGetWidgetsQuery } from "@/store/api/widgetApi";
-import { WidgetCard } from "@/components/widgets/WidgetCard";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
-
-export default function WidgetsListPage() {
-  const [search, setSearch] = useState("");
-  const { data, isLoading } = useGetWidgetsQuery({ search });
+export default function WidgetListPage() {
+  const widgets = widgetsData.widgets;
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">Widgets</h1>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
-          </div>
-        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {widgets.map((widget) => (
+            <Link
+              key={widget.id}
+              href={`/widgets/${widget.id}`}
+              className="block bg-gray-800 rounded-lg p-4 hover:bg-gray-750 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">{widget.title}</h2>
+                <div className="flex items-center">
+                  <StarIcon className="h-5 w-5 text-yellow-400" />
+                  <span className="ml-1">{widget.rating.toFixed(1)}</span>
+                  <span className="ml-1 text-gray-400">
+                    ({formatNumber(widget.ratingCount)})
+                  </span>
+                </div>
+              </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-800 rounded-lg"></div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {data?.widgets.map((widget) => (
-              <WidgetCard key={widget.id} widget={widget} />
-            ))}
-          </div>
-        )}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {widget.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2 py-1 text-xs rounded-full bg-gray-700 text-gray-300"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between text-sm text-gray-400">
+                <span>{formatNumber(widget.views)} views</span>
+                <span>{widget.shop.name}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </main>
   );

@@ -1,0 +1,77 @@
+{
+    "widgets": [
+        {
+            "id": "1",
+            "title": "GoogleAds for Airline Flights content generation",
+            "description": "The Google Ads Content Generator for Airline Flights widget is designed to streamline and enhance your advertising campaigns by generating high-quality, targeted content for flight promotions and deals.",
+            "rating": 4.5,
+            "ratingCount": 128,
+            "views": 15234,
+            "tags": [
+                "marketing",
+                "automation",
+                "travel",
+                "advertising"
+            ],
+            "shop": {
+                "name": "Marketing Pro"
+            },
+            "exampleOutputs": [
+                {
+                    "fileName": "Marketing_Campaign.pdf",
+                    "fileType": "pdf",
+                    "url": "/examples/campaign.pdf"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "title": "Social Media Post Generator",
+            "description": "Create engaging social media content with our AI-powered post generator. Perfect for travel and tourism businesses.",
+            "rating": 4.8,
+            "ratingCount": 256,
+            "views": 28750,
+            "tags": [
+                "social media",
+                "content",
+                "AI",
+                "marketing"
+            ],
+            "shop": {
+                "name": "Digital Solutions"
+            }
+        },
+        {
+            "id": "3",
+            "title": "Email Campaign Builder",
+            "description": "Automated email campaign builder for travel agencies and airlines. Create personalized email sequences.",
+            "rating": 4.2,
+            "ratingCount": 89,
+            "views": 9876,
+            "tags": [
+                "email",
+                "automation",
+                "marketing"
+            ],
+            "shop": {
+                "name": "Email Pro"
+            }
+        },
+        {
+            "id": "4",
+            "title": "Flight Deal Analyzer",
+            "description": "Analyze and optimize your flight deals with our advanced analytics widget.",
+            "rating": 4.7,
+            "ratingCount": 167,
+            "views": 12543,
+            "tags": [
+                "analytics",
+                "flights",
+                "optimization"
+            ],
+            "shop": {
+                "name": "Travel Tech"
+            }
+        }
+    ]
+}

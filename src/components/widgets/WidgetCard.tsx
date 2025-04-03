@@ -7,36 +7,24 @@ interface WidgetCardProps {
   widget: Widget;
 }
 
-export const WidgetCard = ({ widget }: WidgetCardProps) => {
+export default function WidgetCard({ widget }: WidgetCardProps) {
   return (
     <Link
       href={`/widgets/${widget.id}`}
-      className="block p-4 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
+      className="block bg-gray-800 rounded-lg p-4 hover:bg-gray-750 transition-colors"
     >
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-semibold text-white truncate pr-4">
-          {widget.title}
-        </h3>
-        <div className="flex items-center space-x-1">
-          <div className="flex items-center">
-            <StarIcon className="h-5 w-5 text-yellow-400" />
-            <span className="ml-1 text-white">{widget.rating.toFixed(1)}</span>
-          </div>
-          <span className="text-gray-400">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold">{widget.title}</h2>
+        <div className="flex items-center">
+          <StarIcon className="h-5 w-5 text-yellow-400" />
+          <span className="ml-1">{widget.rating.toFixed(1)}</span>
+          <span className="ml-1 text-gray-400">
             ({formatNumber(widget.ratingCount)})
           </span>
         </div>
       </div>
 
-      <div className="flex items-center text-sm text-gray-400 mb-3">
-        <span>{formatNumber(widget.views)} views</span>
-        <span className="mx-2">•</span>
-        <span>{widget.requests} requests</span>
-        <span className="mx-2">•</span>
-        <span>{widget.shop.name}</span>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-4">
         {widget.tags.map((tag) => (
           <span
             key={tag}
@@ -46,6 +34,12 @@ export const WidgetCard = ({ widget }: WidgetCardProps) => {
           </span>
         ))}
       </div>
+
+      <div className="flex items-center text-sm text-gray-400">
+        <span>{formatNumber(widget.views)} views</span>
+        <span className="mx-2">•</span>
+        <span>{widget.shop.name}</span>
+      </div>
     </Link>
   );
-};
+}

@@ -5,9 +5,7 @@ export interface Widget {
   rating: number;
   ratingCount: number;
   views: number;
-  requests: number;
   tags: string[];
-  price: number;
   shop: {
     name: string;
   };
