@@ -1,0 +1,38 @@
+// src/styles/variables.scss
+$primary-color: #3490dc;
+$secondary-color: #38b2ac;
+$background-color: #f7fafc;
+$text-color: #2d3748;
+$error-color: #e53e3e;
+$success-color: #38a169;
+
+// src/styles/globals.scss
+@import "variables";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #{$primary-color};
+  --secondary-color: #{$secondary-color};
+  --background-color: #{$background-color};
+  --text-color: #{$text-color};
+  --error-color: #{$error-color};
+  --success-color: #{$success-color};
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-500 text-white font-bold py-2 px-4 rounded hover:bg-gray-700 transition-colors;
+  }
+}
