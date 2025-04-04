@@ -1,5 +1,100 @@
+"use client";
+
 import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useCallback, useState, useEffect, Suspense } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+// Component with useSearchParams that needs to be wrapped in Suspense
+function SearchBar() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+
+  // Update searchTerm if it changes from URL
+  useEffect(() => {
+    setSearchTerm(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  // Create URL with updated params
+  const createQueryString = useCallback(
+    (params: Record<string, string | string[] | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+
+      // Update search params
+      Object.entries(params).forEach(([key, value]) => {
+        if (value === null) {
+          newSearchParams.delete(key);
+        } else if (Array.isArray(value)) {
+          if (value.length === 0) {
+            newSearchParams.delete(key);
+          } else {
+            newSearchParams.set(key, value.join(","));
+          }
+        } else {
+          newSearchParams.set(key, value);
+        }
+      });
+
+      return newSearchParams.toString();
+    },
+    [searchParams]
+  );
+
+  // Handle search submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pathname.includes("/widgets")) {
+      router.push(
+        `/widgets?${createQueryString({
+          search: searchTerm || null,
+          page: "1", // Reset to first page on new search
+        })}`
+      );
+    } else {
+      // If not on widgets page, redirect to widgets page with search
+      router.push(`/widgets?${searchTerm ? `search=${searchTerm}` : ""}`);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSearch}>
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
+        </div>
+        <input
+          type="text"
+          placeholder="Search widgets..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg block w-full pl-10 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-yellow-500"
+        />
+      </div>
+    </form>
+  );
+}
+
+// Loading fallback for search
+function SearchBarFallback() {
+  return (
+    <div className="relative">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
+      </div>
+      <input
+        type="text"
+        placeholder="Search widgets..."
+        disabled
+        className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg block w-full pl-10 pr-3 py-2 focus:outline-none"
+      />
+    </div>
+  );
+}
 
 export default function Header() {
   return (
@@ -49,23 +144,19 @@ export default function Header() {
         </div>
 
         <div className="flex-1 max-w-xl mx-4">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-500" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search"
-              className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg block w-full pl-10 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-gray-600"
-            />
-          </div>
+          <Suspense fallback={<SearchBarFallback />}>
+            <SearchBar />
+          </Suspense>
         </div>
 
         <div className="flex items-center space-x-5">
-          <div className="flex items-center text-sm font-medium text-gray-300 hover:text-white bg-gray-800/50 rounded-lg px-3 py-1.5">
+          <Link
+            href="/widgets"
+            className="flex items-center text-sm font-medium text-gray-300 hover:text-white bg-gray-800/50 rounded-lg px-3 py-1.5"
+          >
             <span className="mr-1">Widgets</span>
             <PlusIcon className="h-5 w-5 text-yellow-400" />
-          </div>
+          </Link>
           <div className="flex items-center text-sm font-medium text-gray-400 hover:text-white bg-transparent py-1.5 px-2">
             <span>Requests</span>
             <svg

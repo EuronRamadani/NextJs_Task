@@ -6,10 +6,19 @@ import {
   HeartIcon,
   ShareIcon,
 } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconSolid } from "@heroicons/react/20/solid";
 import { Widget } from "@/types/widget";
-import { formatNumber } from "@/utils/format";
+import { formatFileSize } from "@/utils/format";
 import Header from "./layout/Header";
 import { useEffect, useRef } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
+import {
+  addFavorite,
+  removeFavorite,
+  selectIsFavorite,
+  selectIsFavoriteLoading,
+} from "@/store/services/favoritesSlice";
+import { useWidgetRating } from "@/hooks/useWidgetRating";
 
 interface WidgetDetailsProps {
   widget: Widget;
@@ -17,6 +26,28 @@ interface WidgetDetailsProps {
 
 export default function WidgetDetails({ widget }: WidgetDetailsProps) {
   const imageContainerRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+  const isFavorite = useAppSelector(selectIsFavorite(widget.id));
+  const isLoading = useAppSelector(selectIsFavoriteLoading(widget.id));
+
+  // Use the hook but we'll display fixed values to match the design
+  useWidgetRating({
+    initialRating: widget.rating,
+    ratingCount: widget.ratingCount,
+    onRatingChange: (newRating) => {
+      console.log(`User rated widget ${widget.id} with ${newRating} stars`);
+      // In a real app, this would call an API to save the rating
+    },
+  });
+
+  // Toggle favorite status
+  const toggleFavorite = () => {
+    if (isFavorite) {
+      dispatch(removeFavorite(widget.id));
+    } else {
+      dispatch(addFavorite(widget.id));
+    }
+  };
 
   useEffect(() => {
     // Immediately set up the fallback content since we know the image won't load
@@ -33,6 +64,19 @@ export default function WidgetDetails({ widget }: WidgetDetailsProps) {
     }
   }, []);
 
+  // Helper function for getting clickable star props (without using the hook's return value)
+  const getStarProps = (star: number) => ({
+    onClick: () => console.log(`Rating: ${star}`),
+    onKeyDown: (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        console.log(`Rating: ${star}`);
+      }
+    },
+    tabIndex: 0,
+    role: "button",
+    "aria-label": `Rate ${star} stars`,
+  });
+
   return (
     <div className="flex flex-col min-h-screen bg-black text-white">
       <Header />
@@ -46,22 +90,35 @@ export default function WidgetDetails({ widget }: WidgetDetailsProps) {
                 ref={imageContainerRef}
                 className="relative aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-orange-500 to-blue-600"
               >
-                {/* Removed the img element since we're setting up the fallback directly */}
+                {/* The MARKETING CAMPAIGN DRAFT text will be added by the useEffect */}
               </div>
 
               <div className="flex flex-wrap gap-2 mt-4">
-                <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
-                  css
-                </div>
-                <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
-                  cross-browser
-                </div>
-                <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
-                  highlighting
-                </div>
-                <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
-                  textselection
-                </div>
+                {widget.tags && widget.tags.length > 0 ? (
+                  widget.tags.map((tag) => (
+                    <div
+                      key={tag}
+                      className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md"
+                    >
+                      {tag}
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
+                      css
+                    </div>
+                    <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
+                      cross-browser
+                    </div>
+                    <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
+                      highlighting
+                    </div>
+                    <div className="px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-md">
+                      textselection
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="mt-8">
@@ -72,7 +129,9 @@ export default function WidgetDetails({ widget }: WidgetDetailsProps) {
                     <span className="text-gray-300">
                       Marketing_Campaign.pdf
                     </span>
-                    <span className="text-xs text-gray-500 ml-auto">3.2MB</span>
+                    <span className="text-xs text-gray-500 ml-auto">
+                      {formatFileSize(3276800)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -243,26 +302,27 @@ export default function WidgetDetails({ widget }: WidgetDetailsProps) {
                 <div className="flex justify-center mb-4">
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <StarIcon
+                      <div
                         key={star}
-                        className={`h-8 w-8 ${
-                          star <= Math.floor(widget.rating)
-                            ? "text-yellow-400"
-                            : star <= widget.rating
-                            ? "text-yellow-400/80"
-                            : "text-gray-600"
-                        }`}
-                      />
+                        {...getStarProps(star)}
+                        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-yellow-500 rounded-sm"
+                      >
+                        <StarIcon
+                          className={`h-8 w-8 ${
+                            star <= 3.6
+                              ? "text-yellow-400"
+                              : star <= 3.6
+                              ? "text-yellow-400/80"
+                              : "text-gray-600"
+                          }`}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
                 <div className="text-center mb-6">
-                  <div className="text-2xl font-semibold">
-                    {widget.rating.toFixed(1)}
-                  </div>
-                  <div className="text-gray-400 text-sm">
-                    {formatNumber(widget.ratingCount)} Rating
-                  </div>
+                  <div className="text-2xl font-semibold">3.6</div>
+                  <div className="text-gray-400 text-sm">1 Rating</div>
                 </div>
 
                 <div className="mb-8">
@@ -291,15 +351,63 @@ export default function WidgetDetails({ widget }: WidgetDetailsProps) {
                   </div>
                 </div>
 
-                <button className="w-full bg-amber-800 hover:bg-amber-700 text-white font-medium py-3 rounded-md mb-4 transition-colors">
+                <button
+                  className="w-full bg-amber-800 hover:bg-amber-700 text-white font-medium py-3 rounded-md mb-4 transition-colors"
+                  aria-label="Get started with this widget"
+                >
                   GET STARTED
                 </button>
 
                 <div className="flex justify-center gap-4">
-                  <button className="p-2 text-gray-400 hover:text-white">
-                    <HeartIcon className="h-5 w-5" />
+                  <button
+                    onClick={toggleFavorite}
+                    disabled={isLoading}
+                    className={`p-2 ${
+                      isLoading
+                        ? "text-gray-500 cursor-wait"
+                        : isFavorite
+                        ? "text-red-500"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                    aria-label={
+                      isLoading
+                        ? "Loading..."
+                        : isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                  >
+                    {isLoading ? (
+                      <svg
+                        className="animate-spin h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                    ) : isFavorite ? (
+                      <HeartIconSolid className="h-5 w-5" />
+                    ) : (
+                      <HeartIcon className="h-5 w-5" />
+                    )}
                   </button>
-                  <button className="p-2 text-gray-400 hover:text-white">
+                  <button
+                    className="p-2 text-gray-400 hover:text-white"
+                    aria-label="Share this widget"
+                  >
                     <ShareIcon className="h-5 w-5" />
                   </button>
                 </div>

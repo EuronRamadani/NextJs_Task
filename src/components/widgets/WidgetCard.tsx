@@ -1,14 +1,41 @@
 import { Widget } from "@/types/widget";
 import Link from "next/link";
 import { StarIcon } from "@heroicons/react/20/solid";
+import { HeartIcon } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconSolid } from "@heroicons/react/20/solid";
 import { formatNumber } from "@/utils/format";
+import { useAppDispatch, useAppSelector } from "@/hooks/reduxHooks";
+import {
+  addFavorite,
+  removeFavorite,
+  selectIsFavorite,
+  selectIsFavoriteLoading,
+} from "@/store/services/favoritesSlice";
 
 interface WidgetCardProps {
   widget: Widget;
 }
 
 export default function WidgetCard({ widget }: WidgetCardProps) {
-  // Use fixed tags that match the image for demo purposes
+  const dispatch = useAppDispatch();
+  const isFavorite = useAppSelector(selectIsFavorite(widget.id));
+  const isLoading = useAppSelector(selectIsFavoriteLoading(widget.id));
+
+  // Prevent navigation when clicking the favorite button
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    if (isLoading) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isFavorite) {
+      dispatch(removeFavorite(widget.id));
+    } else {
+      dispatch(addFavorite(widget.id));
+    }
+  };
+
+  // Fixed tags that match the image for demo purposes
   const fixedTags = ["css", "cross-browser", "highlighting", "textselection"];
 
   return (
@@ -17,9 +44,56 @@ export default function WidgetCard({ widget }: WidgetCardProps) {
       className="block bg-gray-900 rounded-lg overflow-hidden border border-gray-800 hover:border-gray-700 transition-colors"
     >
       <div className="p-4">
-        <h2 className="text-md font-medium text-white mb-1 truncate">
-          {widget.title}
-        </h2>
+        <div className="flex justify-between items-start mb-1">
+          <h2 className="text-md font-medium text-white truncate pr-2">
+            {widget.title}
+          </h2>
+          <button
+            onClick={handleFavoriteClick}
+            disabled={isLoading}
+            className={`p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-400 ${
+              isLoading
+                ? "text-gray-500 cursor-wait"
+                : isFavorite
+                ? "text-red-500"
+                : "text-gray-500 hover:text-gray-300"
+            }`}
+            aria-label={
+              isLoading
+                ? "Loading..."
+                : isFavorite
+                ? "Remove from favorites"
+                : "Add to favorites"
+            }
+          >
+            {isLoading ? (
+              <svg
+                className="animate-spin h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : isFavorite ? (
+              <HeartIconSolid className="h-4 w-4" />
+            ) : (
+              <HeartIcon className="h-4 w-4" />
+            )}
+          </button>
+        </div>
 
         <div className="flex items-center mb-2">
           <div className="flex items-center">

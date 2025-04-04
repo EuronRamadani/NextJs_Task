@@ -7,12 +7,15 @@ export const widgetApi = createApi({
   endpoints: (builder) => ({
     getWidgets: builder.query<WidgetListResponse, WidgetFilters>({
       query: (params) => ({
-        url: "/widgets",
+        url: "/widget",
         params,
       }),
     }),
     getWidgetById: builder.query<Widget, string>({
-      query: (id) => `/widgets/${id}`,
+      query: (id) => ({
+        url: "/widget",
+        params: { id },
+      }),
     }),
   }),
 });
